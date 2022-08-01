@@ -1,8 +1,13 @@
 package jm.task.core.jdbc.util;
 
+import jm.task.core.jdbc.model.User;
+import org.hibernate.SessionFactory;
+import org.hibernate.cfg.Configuration;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.Properties;
 
 public class Util {
 
@@ -11,6 +16,7 @@ public class Util {
     private static final String PASSWORD = "root";
     private static Connection connection;
     private static Util instance;
+    private static SessionFactory factory;
 
     private Util() {
     }
@@ -33,6 +39,26 @@ public class Util {
         }
 
         return connection;
+    }
+
+    public SessionFactory getSessionFactory() {
+        if (factory == null) {
+            factory = new Configuration().addProperties(hibernateProperties())
+                    .addAnnotatedClass(User.class).buildSessionFactory();
+        }
+        return factory;
+    }
+
+    private static Properties hibernateProperties() {
+        Properties prop= new Properties();
+
+        prop.setProperty("hibernate.connection.url", URL);
+        prop.setProperty("dialect", "org.hibernate.dialect.MySQLDialect");
+        prop.setProperty("hibernate.connection.username", USER);
+        prop.setProperty("hibernate.connection.password", PASSWORD);
+        prop.setProperty("hibernate.connection.driver_class", "com.mysql.cj.jdbc.Driver");
+        prop.setProperty("show_sql", String.valueOf(true));
+        return prop;
     }
 
 }
